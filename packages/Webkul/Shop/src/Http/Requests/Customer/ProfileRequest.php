@@ -1,4 +1,4 @@
-<?php
+ <?php
 
 namespace Webkul\Shop\Http\Requests\Customer;
 
@@ -40,5 +40,35 @@ class ProfileRequest extends FormRequest
             'phone'                     => ['required', new PhoneNumber, 'unique:customers,phone,'.$id],
             'subscribed_to_news_letter' => 'nullable',
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     * Trim leading/trailing spaces from common inputs to avoid validation failures
+     * when users accidentally copy/paste values with spaces.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $inputsToTrim = [
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'new_password',
+            'new_password_confirmation',
+            'current_password',
+        ];
+
+        $data = $this->all();
+
+        foreach ($inputsToTrim as $key) {
+            if (array_key_exists($key, $data) && is_string($data[$key])) {
+                $data[$key] = trim($data[$key]);
+            }
+        }
+
+        $this->replace($data);
     }
 }
